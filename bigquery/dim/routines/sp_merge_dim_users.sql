@@ -18,6 +18,8 @@ BEGIN
   MERGE `dim.dim_users` T
   USING (
     SELECT
+      -- 在子查詢內預先算好新 SK，MERGE 內 INSERT VALUES 不能放 window function
+      max_sk + ROW_NUMBER() OVER (ORDER BY user_id) AS new_user_sk,
       user_id,
       name,
       `analytics.fn_clean_phone`(phone) AS phone_clean,
@@ -38,13 +40,13 @@ BEGIN
   )
   THEN UPDATE SET valid_to = CURRENT_TIMESTAMP(), is_current = FALSE
 
-  -- 全新 user → 直接插入
+  -- 全新 user → 直接插入（用子查詢預算好的 new_user_sk）
   WHEN NOT MATCHED THEN INSERT
     (user_sk, user_id, name, phone_clean, email, country, segment, valid_from, valid_to, is_current)
   VALUES (
-    max_sk + ROW_NUMBER() OVER (ORDER BY S.user_id),
+    S.new_user_sk,
     S.user_id, S.name, S.phone_clean, S.email, S.country, S.segment,
-    CURRENT_TIMESTAMP(), NULL, TRUE
+    CURRENT_TIMESTAMP(), CAST(NULL AS TIMESTAMP), TRUE
   );
 
   -- 第二段：對「剛被 closed 的」user 補插新版本
@@ -60,7 +62,7 @@ BEGIN
     r.country,
     `analytics.fn_user_segment`(r.country) AS segment,
     CURRENT_TIMESTAMP() AS valid_from,
-    NULL AS valid_to,
+    CAST(NULL AS TIMESTAMP) AS valid_to,
     TRUE AS is_current
   FROM `raw_data.users_raw` r
   WHERE r.user_id IN (
