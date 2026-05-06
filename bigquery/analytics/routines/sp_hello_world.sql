@@ -4,9 +4,11 @@
 -- 部署成功後可改成有實際業務的 SP
 -- E2E test: 2026-05-06 by lin
 
-CREATE OR REPLACE PROCEDURE `analytics.sp_hello_world`()
-BEGIN
-  SELECT
-    'hello from sql-governance-pilot' AS message,
-    CURRENT_TIMESTAMP() AS run_at;
-END;
+ CREATE OR REPLACE PROCEDURE `analytics.sp_hello_world`()
+  BEGIN
+    SELECT
+      'hello from sql-governance-pilot' AS message,
+      CURRENT_TIMESTAMP()              AS run_at,
+      @@dataset_project_id             AS deployed_in,
+      SESSION_USER()                   AS executed_by;
+  END;
