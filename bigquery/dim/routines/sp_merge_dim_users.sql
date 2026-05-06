@@ -46,7 +46,7 @@ BEGIN
   VALUES (
     S.new_user_sk,
     S.user_id, S.name, S.phone_clean, S.email, S.country, S.segment,
-    CURRENT_TIMESTAMP(), NULL, TRUE
+    CURRENT_TIMESTAMP(), CAST(NULL AS TIMESTAMP), TRUE
   );
 
   -- 第二段：對「剛被 closed 的」user 補插新版本
@@ -62,7 +62,7 @@ BEGIN
     r.country,
     `analytics.fn_user_segment`(r.country) AS segment,
     CURRENT_TIMESTAMP() AS valid_from,
-    NULL AS valid_to,
+    CAST(NULL AS TIMESTAMP) AS valid_to,
     TRUE AS is_current
   FROM `raw_data.users_raw` r
   WHERE r.user_id IN (
