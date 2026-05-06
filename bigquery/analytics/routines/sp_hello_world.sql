@@ -2,6 +2,7 @@
 -- routine_type: PROCEDURE
 -- 第一個樣板 SP — 用來走 PR → dev → prod approval → deploy 端到端流程
 -- 部署成功後可改成有實際業務的 SP
+-- E2E test: 2026-05-06 by lin
 
 CREATE OR REPLACE PROCEDURE `analytics.sp_hello_world`()
 BEGIN
