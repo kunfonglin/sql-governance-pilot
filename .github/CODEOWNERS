@@ -1,0 +1,6 @@
+﻿# CODEOWNERS for sql-governance-pilot
+
+* @kunfonglin
+
+.github/    @kunfonglin
+config/     @kunfonglin

@@ -1,0 +1,36 @@
+﻿# Pilot project ??sandbox ?啣?閮剖?
+
+version: 1
+
+logical_project: pilot
+
+environments:
+  test:
+    project_id: sandbox-test               # ???寞?雿祕?? sandbox test project_id
+  prod:
+    project_id: sandbox-prod               # ???寞?雿祕?? sandbox prod project_id
+
+exclude:
+  datasets:
+    - staging_temp
+    - _dataform_staging
+    - _script_scratch
+  routines: []
+    # 蝭?嚗??箇??臬敺暺?銝?嚗?    # - pattern: "*.sp_migrate_sqlserver_*"
+    #   reason: "SQL Server ?瑞宏甇瑕?祉宏撌亙"
+    #   review_by: "2026-09-30"
+    #   owner: "lin"
+
+drift_check:
+  schedule: "0 3 * * *"
+  scope:
+    - routines
+  notify: telegram
+  ignore_known: true
+
+cost_gate:
+  pr_validate_max_bytes: 100000000000      # 100 GB
+
+platform:
+  ref: v1.0
+  repo: kunfonglin/sql-governance-platform

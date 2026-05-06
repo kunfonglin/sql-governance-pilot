@@ -1,0 +1,20 @@
+﻿name: deploy-prod
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-deploy.yml@v1.0
+    with:
+      project_id: ${{ vars.PROJECT_PROD }}
+      environment: production           # ??閫貊 GitHub Environment approval gate
+      logical_project: pilot
+      platform_repo: kunfonglin/sql-governance-platform
+      platform_ref: v1.0
+    secrets:
+      WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+      DEPLOY_SA: ${{ secrets.DEPLOY_SA }}
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}

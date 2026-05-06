@@ -1,0 +1,17 @@
+﻿name: pr-validate
+
+on:
+  pull_request:
+    branches: [development, main]
+
+jobs:
+  validate:
+    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-pr-validate.yml@v1.0
+    with:
+      target_project: ${{ vars.PROJECT_TEST }}
+      cost_gate_max_bytes: '100000000000'    # 100 GB
+      platform_repo: kunfonglin/sql-governance-platform
+      platform_ref: v1.0
+    secrets:
+      WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+      DEPLOY_SA: ${{ secrets.DEPLOY_SA }}
