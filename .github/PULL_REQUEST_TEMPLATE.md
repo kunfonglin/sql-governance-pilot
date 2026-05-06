@@ -1,16 +1,19 @@
-﻿# PR Description
+# PR Description
 
-## 霈??
-<!-- ?箔?暻潸????湛?璆剖??瘙?/ bug fix / ?? -->
+## 變更原因
+<!-- 為什麼要做這個變更？業務需求 / bug fix / 重構 -->
 
-## 敶梢蝭?
-<!-- ???芯? SP / function嚗蔣?踹鈭?皜賂? -->
+## 影響範圍
+<!-- 動了哪些 SP / function？影響哪些下游？ -->
 
 ## Checklist
 
-- [ ] 瑼?頝臬?甇?Ⅱ嚗bigquery/{dataset}/routines/{name}.sql`
-- [ ] SP / FN ??`CREATE OR REPLACE`嚗蝑?
-- [ ] 瘝神 project id嚗楊撠??? `-- cross-project:` header嚗?- [ ] ??Standard SQL
-- [ ] 撌脣?芸楛??BQ Studio workspace 暺銵?霅?
+- [ ] 檔案路徑正確：`bigquery/{dataset}/routines/{name}.sql`
+- [ ] SP / FN 用 `CREATE OR REPLACE`（冪等）
+- [ ] 沒寫 project id（跨專案有加 `-- cross-project:` header）
+- [ ] 全 Standard SQL
+- [ ] 已在自己的 BQ Studio workspace 點「執行」驗證過
 
-## ?臬?閬犖撌乩???- [ ] 瘨?憭折?鞈?閮?嚗??? cost gate 閫貊?嚗?- [ ] ?賢? SP 銋???鞈湧?嚗ALL ??嚗?
+## 是否需要人工介入
+- [ ] 涉及大量資料計算（會造成 cost gate 觸發?）
+- [ ] 牽動 SP 之間的依賴鏈（CALL 順序）

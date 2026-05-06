@@ -1,8 +1,9 @@
-﻿# Known drifts ??drift detector 瘥??歲?? routine
-# 蝭?嚗?# - pattern: "analytics.sp_one_off_2025_*"
-#   reason: "2025 銝甈⊥扯??耨敺抬???蝝??
+# Known drifts — drift detector 比對時跳過這些 routine
+# 範例：
+# - pattern: "analytics.sp_one_off_2025_*"
+#   reason: "2025 一次性資料修復，留作紀錄"
 #   added_by: "lin"
 #   added_at: "2026-04-30"
-#   expires_at: "2026-12-31"        # ??敺?仃?????啣?霅佗?
+#   expires_at: "2026-12-31"        # 過期後自動失效（會重新告警）
 
 []

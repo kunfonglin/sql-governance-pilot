@@ -1,9 +1,9 @@
-﻿name: nightly-drift
+name: nightly-drift
 
 on:
   schedule:
-    - cron: '0 3 * * *'        # 瘥 03:00 UTC
-  workflow_dispatch:           # 銋??閫貊
+    - cron: '0 3 * * *'        # 每日 03:00 UTC
+  workflow_dispatch:           # 也可手動觸發
 
 jobs:
   drift:

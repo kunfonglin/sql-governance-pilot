@@ -1,4 +1,4 @@
-﻿# Pilot project ??sandbox ?啣?閮剖?
+# Pilot project — sandbox 環境設定
 
 version: 1
 
@@ -6,9 +6,9 @@ logical_project: pilot
 
 environments:
   test:
-    project_id: sandbox-test               # ???寞?雿祕?? sandbox test project_id
+    project_id: praxis-works-367201        # 你的 sandbox test
   prod:
-    project_id: sandbox-prod               # ???寞?雿祕?? sandbox prod project_id
+    project_id: tapirus-test-384312        # 你的 sandbox prod
 
 exclude:
   datasets:
@@ -16,8 +16,9 @@ exclude:
     - _dataform_staging
     - _script_scratch
   routines: []
-    # 蝭?嚗??箇??臬敺暺?銝?嚗?    # - pattern: "*.sp_migrate_sqlserver_*"
-    #   reason: "SQL Server ?瑞宏甇瑕?祉宏撌亙"
+    # 範例（待基線匯入後盤點補上）：
+    # - pattern: "*.sp_migrate_sqlserver_*"
+    #   reason: "SQL Server 遷移歷史搬移工具"
     #   review_by: "2026-09-30"
     #   owner: "lin"
 

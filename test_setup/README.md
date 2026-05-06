@@ -1,61 +1,69 @@
-﻿# Pilot 皜祈岫鞈?瘚?
-> 銝憟項?虜閬?BQ SP 璅∪??葫閰西???蝯?`lineage-extract.py` 頝??蝢拍?蝯??具?
+# Pilot 測試資料流
+
+> 一套涵蓋常見 BQ SP 模式的測試資料，給 `lineage-extract.py` 跑出有意義的結果用。
+
 ---
 
-## ?湧??嗆?
+## 整體架構
 
 ```
-raw_data/                 ?????賢鞈?
+raw_data/                 ← 原始落地資料
   user_orders_raw
   users_raw
   products_raw
 
-   ??sp_load_orders + sp_clean_invalid_orders
+   ↓ sp_load_orders + sp_clean_invalid_orders
 
-staging/                  ??皜?敺?  user_orders_staging
+staging/                  ← 清洗後
+  user_orders_staging
   invalid_orders_log
 
-   ??sp_merge_dim_users + sp_merge_dim_products
+   ↓ sp_merge_dim_users + sp_merge_dim_products
 
-dim/                      ??蝬剖漲銵?  dim_users               (SCD Type 2)
+dim/                      ← 維度表
+  dim_users               (SCD Type 2)
   dim_products            (SCD Type 1)
 
-   ??sp_build_daily_orders_fact + sp_update_user_ltv
+   ↓ sp_build_daily_orders_fact + sp_update_user_ltv
 
-fact/                     ??鈭祕銵?  fact_daily_orders       (partitioned)
+fact/                     ← 事實表
+  fact_daily_orders       (partitioned)
   fact_user_ltv           (accumulating snapshot)
 
-   ??sp_build_daily_summary
+   ↓ sp_build_daily_summary
 
-analytics/                ????
+analytics/                ← 聚合
   daily_summary
   daily_partition_metrics
 
-archive/                  ???瑕摮?  user_orders_archive
+archive/                  ← 冷儲存
+  user_orders_archive
 ```
 
 ---
 
-## 銝甈⊥?Setup
+## 一次性 Setup
 
-??sandbox project嚗tapirus-test-384312`嚗?摨銵?
+在 sandbox project（`tapirus-test-384312`）依序執行：
 
 ```bash
-# 隤?嚗雿?冽撘?JSON key ??ADC嚗?gcloud config set project tapirus-test-384312
+# 認證（用你慣用方式：JSON key 或 ADC）
+gcloud config set project tapirus-test-384312
 
-# 1. 撱?dataset
+# 1. 建 dataset
 bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
   < D:/Claude/BQ_Governance/phase1/pilot/test_setup/01-create-datasets.sql
 
-# 2. 撱?table
+# 2. 建 table
 bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
   < D:/Claude/BQ_Governance/phase1/pilot/test_setup/02-create-tables.sql
 
-# 3. 蝔格葫閰西???bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
+# 3. 種測試資料
+bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
   < D:/Claude/BQ_Governance/phase1/pilot/test_setup/03-seed-data.sql
 ```
 
-??甈∟?摰?
+或一次跑完：
 
 ```bash
 for f in D:/Claude/BQ_Governance/phase1/pilot/test_setup/0*.sql; do
@@ -66,15 +74,17 @@ done
 
 ---
 
-## ?函蔡???SP / UDF
+## 部署所有 SP / UDF
 
 ```bash
-# ??platform ??apply-routines.sh嚗???頝???.sql嚗?bash D:/Claude/BQ_Governance/phase1/platform/scripts/apply-routines.sh \
+# 用 platform 的 apply-routines.sh（或手動跑每個 .sql）
+bash D:/Claude/BQ_Governance/phase1/platform/scripts/apply-routines.sh \
   --project tapirus-test-384312 \
   --root D:/Claude/BQ_Governance/phase1/pilot/bigquery
 ```
 
-???颱??餉?嚗?霅瑼?嚗?
+或一隻一隻跑（驗證單檔）：
+
 ```bash
 for f in D:/Claude/BQ_Governance/phase1/pilot/bigquery/*/routines/*.sql; do
   echo "==> $f"
@@ -84,71 +94,79 @@ done
 
 ---
 
-## 頝????INFORMATION_SCHEMA.JOBS 鞈?
+## 跑一遍產生 INFORMATION_SCHEMA.JOBS 資料
 
 ```bash
 bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
   < D:/Claude/BQ_Governance/phase1/pilot/test_setup/run-all-routines.sql
 ```
 
-頝?敺?`region-us.INFORMATION_SCHEMA.JOBS_BY_PROJECT` ?府??蝝?10+ 蝑?SP CALL 蝝???臭? lineage-extract ?賬?
+跑完後，`region-us.INFORMATION_SCHEMA.JOBS_BY_PROJECT` 應該會有約 10+ 筆 SP CALL 紀錄，可供 lineage-extract 抽。
+
 ---
 
-## 頝?lineage 撌亙撽?
+## 跑 lineage 工具驗證
 
 ```bash
 cd D:/Claude/BQ_Governance/phase1/platform
 
-# 敺?jobs ??poetry run python scripts/lineage-extract.py from-jobs \
+# 從 jobs 抽
+poetry run python scripts/lineage-extract.py from-jobs \
   --project tapirus-test-384312 --region US --days 1 --db ./lineage.db
 
-# 敺?git ??閫??
+# 從 git 靜態解析
 poetry run python scripts/lineage-extract.py from-repo \
   --git-root ../pilot/bigquery --db ./lineage.db
 
-# ??閬?poetry run python scripts/lineage-extract.py merge --db ./lineage.db
+# 看摘要
+poetry run python scripts/lineage-extract.py merge --db ./lineage.db
 
-# ???SP ?勗?
+# 看單支 SP 報告
 poetry run python scripts/lineage-extract.py report \
   --routine staging.sp_load_orders --db ./lineage.db
 ```
 
 ---
 
-## ??SP ????lineage???扯”
+## 各 SP 的「期望 lineage」對照表
 
-撽?撌亙甇?Ⅱ?抒??蝑?qlglot ?府????untime jobs ?府???
-| SP | ?湔 | reads (?府?) | writes (?府?) | 撌亙?脤? |
+驗證工具正確性用。每筆都列「sqlglot 應該抓到」+「runtime jobs 應該抓到」。
+
+| SP | 場景 | reads (應該抓到) | writes (應該抓到) | 工具盲點 |
 |---|---|---|---|---|
-| `staging.sp_load_orders` | TRUNCATE + INSERT | `raw_data.user_orders_raw` | `staging.user_orders_staging` (DELETE+INSERT) | ??|
-| `staging.sp_clean_invalid_orders` | 憭?write target | `raw_data.user_orders_raw` | `staging.invalid_orders_log` (INSERT)<br>`raw_data.user_orders_raw` (DELETE) | ??|
-| `dim.sp_merge_dim_users` | MERGE SCD-2 + UDF call | `raw_data.users_raw`, `dim.dim_users` | `dim.dim_users` | UDF call (`fn_clean_phone`, `fn_user_segment`) sqlglot ????|
-| `dim.sp_merge_dim_products` | MERGE SCD-1 | `raw_data.products_raw`, `dim.dim_products` | `dim.dim_products` | ??|
-| `fact.sp_build_daily_orders_fact` | TEMP TABLE + 頝典? dataset | `staging.user_orders_staging`, `dim.dim_users`, `dim.dim_products` | `fact.fact_daily_orders` | TEMP TABLE 銝凋??航霈?鈭極?瑁炊??|
-| `fact.sp_update_user_ltv` | UPDATE + INSERT (self-read) | `fact.fact_daily_orders`, `dim.dim_users`, `fact.fact_user_ltv` | `fact.fact_user_ltv` | self-read/write 撠?鈭極?琿 |
-| `analytics.sp_build_daily_summary` | 憭?CTE + DELETE+INSERT | `fact.fact_daily_orders`, `dim.dim_products` | `analytics.daily_summary` | ??|
-| `analytics.sp_dynamic_repartition` | EXECUTE IMMEDIATE | (sqlglot: ????<br>(jobs: `fact.fact_daily_orders`) | (sqlglot: ????<br>(jobs: `analytics.daily_partition_metrics`) | **??皜祈岫**嚗qlglot 銝摰?銝嚗obs ?鋆?|
-| `archive.sp_archive_old_orders` | INSERT ??archive + DELETE source | `staging.user_orders_staging` | `archive.user_orders_archive` (INSERT)<br>`staging.user_orders_staging` (DELETE) | ??|
-| `analytics.sp_run_daily_pipeline` | orchestrator (CALL chain) | (??table ?湔霈) | (??table ?湔撖? | **SP?P edge** ?桀?撌亙銝?嚗撌脩? |
+| `staging.sp_load_orders` | TRUNCATE + INSERT | `raw_data.user_orders_raw` | `staging.user_orders_staging` (DELETE+INSERT) | — |
+| `staging.sp_clean_invalid_orders` | 多 write target | `raw_data.user_orders_raw` | `staging.invalid_orders_log` (INSERT)<br>`raw_data.user_orders_raw` (DELETE) | — |
+| `dim.sp_merge_dim_users` | MERGE SCD-2 + UDF call | `raw_data.users_raw`, `dim.dim_users` | `dim.dim_users` | UDF call (`fn_clean_phone`, `fn_user_segment`) sqlglot 抓不到 |
+| `dim.sp_merge_dim_products` | MERGE SCD-1 | `raw_data.products_raw`, `dim.dim_products` | `dim.dim_products` | — |
+| `fact.sp_build_daily_orders_fact` | TEMP TABLE + 跨多 dataset | `staging.user_orders_staging`, `dim.dim_users`, `dim.dim_products` | `fact.fact_daily_orders` | TEMP TABLE 中介可能讓某些工具誤判 |
+| `fact.sp_update_user_ltv` | UPDATE + INSERT (self-read) | `fact.fact_daily_orders`, `dim.dim_users`, `fact.fact_user_ltv` | `fact.fact_user_ltv` | self-read/write 對某些工具難 |
+| `analytics.sp_build_daily_summary` | 多 CTE + DELETE+INSERT | `fact.fact_daily_orders`, `dim.dim_products` | `analytics.daily_summary` | — |
+| `analytics.sp_dynamic_repartition` | EXECUTE IMMEDIATE | (sqlglot: 看不到)<br>(jobs: `fact.fact_daily_orders`) | (sqlglot: 看不到)<br>(jobs: `analytics.daily_partition_metrics`) | **最關鍵測試**：sqlglot 一定抓不到，jobs 才能補 |
+| `archive.sp_archive_old_orders` | INSERT 到 archive + DELETE source | `staging.user_orders_staging` | `archive.user_orders_archive` (INSERT)<br>`staging.user_orders_staging` (DELETE) | — |
+| `analytics.sp_run_daily_pipeline` | orchestrator (CALL chain) | (無 table 直接讀) | (無 table 直接寫) | **SP→SP edge** 目前工具不抓，是已知限制 |
 
-UDF嚗?
-| UDF | ?券?| 鋡怨狐 call |
+UDF：
+
+| UDF | 用途 | 被誰 call |
 |---|---|---|
-| `analytics.fn_clean_phone` | 皜閰?| `dim.sp_merge_dim_users` |
-| `analytics.fn_user_segment` | ??摰嗆挾 | `dim.sp_merge_dim_users` |
+| `analytics.fn_clean_phone` | 清電話 | `dim.sp_merge_dim_users` |
+| `analytics.fn_user_segment` | 分國家段 | `dim.sp_merge_dim_users` |
 
 ---
 
-## ?蔭 / ???毀
+## 重置 / 砍掉重練
 
 ```bash
 bq query --project_id=tapirus-test-384312 --use_legacy_sql=false \
   < D:/Claude/BQ_Governance/phase1/pilot/test_setup/cleanup.sql
 ```
 
-????DROP ?券 6 ??dataset嚗???table ??routine嚗?
+⚠ 會 DROP 全部 6 個 dataset（含所有 table 與 routine）。
+
 ---
 
-## 瘜冽?
+## 注意
 
-- ?? SP / UDF / table ??*皜祈岫鞈?瘚?*嚗??舐?甇?? governance 撠情???摰Ⅱ撖行??`bigquery/{schema}/routines/` 銝??隞?governance CI/CD嚗?敺?Phase 1 摰頝?嚗????甇?? routine ?函蔡????嚗隞亙 `governance.yaml` ??`exclude.routines` ?脣嚗??停??? demo flow 銝韏瑟祥?? OK??- 蝔桀?鞈??芣? 15 蝑??殷?頝靘? `daily_summary` ?詨?撠?雿?lineage edges ?賊??舐?撖衣???- 頝典?獢?ref 瘝葫 ????閬??血???GCP project 蝯虫?皞hase 1 ?思??整?
+- 這些 SP / UDF / table 是**測試資料流**，不是真正的 governance 對象。但因為它們確實放在 `bigquery/{schema}/routines/` 下，所以 governance CI/CD（之後 Phase 1 完整跑時）會把它們當正式 routine 部署。如果想隔離，可以在 `governance.yaml` 的 `exclude.routines` 加進去；或者就把它們當 demo flow 一起治理也 OK。
+- 種子資料只有 15 筆訂單，跑出來的 `daily_summary` 數字小，但 lineage edges 數量是真實的。
+- 跨專案 ref 沒測 — 這需要你另外的 GCP project 給來源。Phase 1 暫不放。
