@@ -7,6 +7,9 @@ on:
 
 jobs:
   drift:
+    permissions:
+      id-token: write
+      contents: write
     uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-nightly-drift.yml@v1.0
     with:
       project_id: ${{ vars.PROJECT_PROD }}

@@ -6,6 +6,10 @@ on:
 
 jobs:
   validate:
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
     uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-pr-validate.yml@v1.0
     with:
       target_project: ${{ vars.PROJECT_TEST }}
