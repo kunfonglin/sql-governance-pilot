@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "deploy_id": "2026-05-06-25435043917",
+  "logical_project": "pilot",
+  "timestamp": "2026-05-06T12:26:03Z",
+  "target_project": "praxis-works-367201",
+  "trigger": "github-actions",
+  "approved_by": "kunfonglin",
+  "pr_url": "",
+  "git_sha": "a563ffc297445401851c3b0c948061d73627033f",
+  "platform_version": "v1.0",
+  "deployed": {
+    "routines": ["bigquery/analytics/routines/fn_clean_phone.sql", "bigquery/analytics/routines/fn_user_segment.sql", "bigquery/analytics/routines/sp_build_daily_summary.sql", "bigquery/analytics/routines/sp_dynamic_repartition.sql", "bigquery/analytics/routines/sp_hello_world.sql", "bigquery/analytics/routines/sp_monthly_summary.sql", "bigquery/analytics/routines/sp_run_daily_pipeline.sql", "bigquery/archive/routines/sp_archive_old_orders.sql", "bigquery/dim/routines/sp_merge_dim_products.sql", "bigquery/dim/routines/sp_merge_dim_users.sql", "bigquery/fact/routines/sp_build_daily_orders_fact.sql", "bigquery/fact/routines/sp_update_user_ltv.sql", "bigquery/staging/routines/sp_clean_invalid_orders.sql", "bigquery/staging/routines/sp_load_orders.sql"]
+  },
+  "dry_run_passed": true
+}
