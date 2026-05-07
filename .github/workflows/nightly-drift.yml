@@ -10,7 +10,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-nightly-drift.yml@v1.0
+    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-nightly-drift.yml@v1.1
     with:
       project_id: ${{ vars.PROJECT_PROD }}
       region: ${{ vars.REGION }}
