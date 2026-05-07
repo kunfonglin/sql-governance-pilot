@@ -15,7 +15,7 @@ jobs:
       target_project: ${{ vars.PROJECT_TEST }}
       cost_gate_max_bytes: '100000000000'    # 100 GB
       platform_repo: kunfonglin/sql-governance-platform
-      platform_ref: v1.0
+      platform_ref: v1.1
     secrets:
       WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
       DEPLOY_SA: ${{ secrets.DEPLOY_SA }}
