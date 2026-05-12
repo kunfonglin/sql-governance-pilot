@@ -9,13 +9,13 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-deploy.yml@v1.0
+    uses: kunfonglin/sql-governance-platform/.github/workflows/reusable-deploy.yml@v1.1
     with:
       project_id: ${{ vars.PROJECT_TEST }}
       environment: test
       logical_project: pilot
       platform_repo: kunfonglin/sql-governance-platform
-      platform_ref: v1.0
+      platform_ref: v1.1
     secrets:
       WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
       DEPLOY_SA: ${{ secrets.DEPLOY_SA }}
