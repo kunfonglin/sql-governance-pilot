@@ -15,6 +15,8 @@ exclude:
     - staging_temp
     - _dataform_staging
     - _script_scratch
+    - Custom_Tapirus
+    - governance_audit
   routines: []
     # 範例（待基線匯入後盤點補上）：
     # - pattern: "*.sp_migrate_sqlserver_*"
