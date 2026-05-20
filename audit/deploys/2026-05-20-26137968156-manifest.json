@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "deploy_id": "2026-05-20-26137968156",
+  "logical_project": "pilot",
+  "timestamp": "2026-05-20T02:44:39Z",
+  "target_project": "tapirus-test-384312",
+  "trigger": "github-actions",
+  "approved_by": "kunfonglin",
+  "pr_url": "",
+  "git_sha": "453f7879d30312982ff7e56a0da4ddc115f7868d",
+  "platform_version": "v1.1",
+  "deployed": {
+    "routines": [
+      "bigquery/analytics/routines/fn_clean_phone.sql",
+      "bigquery/analytics/routines/fn_user_segment.sql",
+      "bigquery/analytics/routines/sp_build_daily_summary.sql",
+      "bigquery/analytics/routines/sp_drift_demo.sql",
+      "bigquery/analytics/routines/sp_dynamic_repartition.sql",
+      "bigquery/analytics/routines/sp_monthly_summary.sql",
+      "bigquery/analytics/routines/sp_report_demo.sql",
+      "bigquery/analytics/routines/sp_run_daily_pipeline.sql",
+      "bigquery/archive/routines/sp_archive_old_orders.sql",
+      "bigquery/dim/routines/sp_merge_dim_products.sql",
+      "bigquery/dim/routines/sp_merge_dim_users.sql",
+      "bigquery/fact/routines/sp_build_daily_orders_fact.sql",
+      "bigquery/fact/routines/sp_update_user_ltv.sql",
+      "bigquery/staging/routines/sp_clean_invalid_orders.sql",
+      "bigquery/staging/routines/sp_load_orders.sql"
+    ],
+    "migrations_applied": []
+  },
+  "deploy_passes": 1,
+  "dry_run_passed": true
+}
