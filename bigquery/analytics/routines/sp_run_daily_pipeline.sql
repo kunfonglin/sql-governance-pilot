@@ -12,10 +12,12 @@
 -- 目前 lineage-extract.py from-jobs 模式抓不到 SP→SP（只抓 SP→table），
 -- 但 sqlglot 模式可加偵測（之後升級）。
 
--- v1.1 後不需要 OPTIONS(strict_mode=false)
--- 兩階段部署會自動處理 CALL 鏈依賴順序
+-- strict_mode=false: orchestrator 在 CREATE 時不驗證 CALL 的 SP 是否存在
+-- 必要設定，因為部署順序 alphabetical，被 CALL 的 SP 可能還沒建好
+-- 實際 SP 不存在的錯誤會在 runtime 才報
 
 CREATE OR REPLACE PROCEDURE `analytics.sp_run_daily_pipeline`(IN p_date DATE)
+OPTIONS(strict_mode=false)
 BEGIN
   -- Layer 1: raw → staging
   CALL `staging.sp_load_orders`(p_date);
